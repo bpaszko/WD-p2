@@ -1,7 +1,7 @@
 library("shiny")
 #library("dplyr")
 library("ggplot2")
-
+library('scales')
 
 # -------------------------- Dodatkowe dane ---------------------------
 df4 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
@@ -66,7 +66,7 @@ p3_good <- list(
     NULL)
 p4_good <- list(
     "plot", "Ile wynosi CNT w 1998r", 30,
-    ggplot(df, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
+    ggplot(df4, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
 p5_good <- list(
     "plot", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
     p5_g)
