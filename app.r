@@ -1,13 +1,30 @@
 library("shiny")
-#library("dplyr")
+library("dplyr")
 library("ggplot2")
 library('scales')
 
 # -------------------------- Dodatkowe dane ---------------------------
 df4 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
 df5 <- data.frame(value=c(11, 42, 5, 42), Item=c('A', 'B', 'C', 'D'))
+df7 <- data.frame(procent=c(43, 31, 4, 22), Item=c("zdecydowanie przeciw", "przeciw" ,"zdecydowanie za", "za"),
+                  fill=as.factor(c(1,1,0,0)))  
+df7$Item <- factor(df7$Item, levels=unique(df7$Item))
 
-
+df8 <- data.frame(attacks=c(140, 98, 74, 41, 33, 36, 16, 43, 9, 276), 
+                  
+                  deadly_attacks=c(28, 21, 2,0,0,4,0,2,0,9),
+                  shark_name=c("Tiger shark", "Bull shark", "Sandtiger shark", "Hammerhead shark",
+                               "Blacktip shark", "Blue shark","Blacktip reef shark",
+                               "Shortfin Mako", "Grey reef shark", "Others"))
+df8 <- data.frame(attacks=c(112, 77, 72, 41, 33, 32, 16, 41, 9, 265, 28,21,2,0,0,4,0,2,0,9),
+                  typ= as.factor(rep(c("Bez skutku śmiertelnego", "Z skutkiem śmiertelnym"),each=10)),
+                  shark_name=rep(c("Tiger shark", "Bull shark", "Sandtiger shark", "Hammerhead shark",
+                                   "Blacktip shark", "Blue shark","Blacktip reef shark",
+                                   "Shortfin Mako", "Grey reef shark", "Others"),2))
+df8_gr <- df8 %>% group_by(shark_name, typ) %>% summarise(n=sum(attacks))
+attack_sum <- df8_gr %>% group_by(shark_name) %>% summarise(sum(n))
+percs <-df8_gr %>% mutate(freq = n / sum(n)) %>% filter(typ=="Z skutkiem śmiertelnym") %>% select(freq)
+        
 p5_g <- ggplot(df5, aes(x="", y=value, fill=Item)) + 
     geom_bar(width = 1, stat='identity') +
     coord_polar('y', start=0) + 
@@ -23,6 +40,16 @@ p5_g <- ggplot(df5, aes(x="", y=value, fill=Item)) +
     theme(axis.text.x=element_blank()) +
     geom_text(aes(y = 100 - cumsum(value) + 0.5*value, 
                   label = percent(value/100)), size=5)
+p7_g <- ggplot(df7, aes(x=Item, y=procent,fill=fill)) + geom_bar(stat="identity") + 
+  geom_text(aes(label=procent), hjust=-1) + coord_flip() + 
+  scale_fill_manual(values=c("#005b96", "#851e3e")) + theme(legend.position = "none",axis.title.y=element_blank())
+
+p8_g <- ggplot(data=df8, aes(y=attacks, x=shark_name, fill=typ)) +
+  geom_bar(stat="identity") + coord_flip() + geom_text(label=paste0(round(rep(percs$freq,2), 2)*100, "%"), 
+                                                       aes(y=rep(attack_sum$`sum(n)`, 2),
+                                                           x=rep(attack_sum$shark_name, 2)),
+                                                       hjust=-1) + theme(axis.title.y=element_blank())+
+  ylab("Liczba ataków")
 
 
 
@@ -47,11 +74,11 @@ p6_bad <- list(
     "plot", "?", "odp",
     NULL)
 p7_bad <- list(
-    "plot", "?", "odp",
-    NULL)
+    "img", "Jaki procent Polaków jest przeciw lub zdecydowanie przeciw przyjęcia uchodźców z państw bliskiego wschodu?", "74",
+    "https://github.com/bpaszko/WD-p2/raw/olaf_wykresy/tvp_sondaz.png")
 p8_bad <- list(
-    "plot", "?", "odp",
-    NULL)
+    "img", "Wykres przedstawia liczbę ataków śmiertelnych na łączną liczbę ataków rekinów. Podaj który rekin ma największą śmiertelność", "Bull shark",
+    "http://quantup.pl/wp-content/uploads/blog/20140709-jak-poprawic-wizualizacje-danych/figure/rys2.png")
 
 
 # -------------------- Wykresy poprawne --------------------
@@ -75,10 +102,13 @@ p6_good <- list(
     NULL)
 p7_good <- list(
     "plot", "?", "odp",
-    NULL)
+    p7_g)
+#p8_good <- list(
+ #   "img", "?", "odp",
+  #  "https://www.mathworks.com/help/examples/graphics/win64/CreateLinePlotExample_01.png")
 p8_good <- list(
-    "img", "?", "odp",
-    "https://www.mathworks.com/help/examples/graphics/win64/CreateLinePlotExample_01.png")
+  "plot", "?", "Bull shark",
+  p8_g)
 
 
 
