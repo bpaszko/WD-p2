@@ -58,7 +58,7 @@ p8_g <- ggplot(data=df8, aes(y=attacks, x=shark_name, fill=typ)) +
 # list("<typ>", "<pytanie>", <odpowiedź>, <wykres/url>)
 p1_bad <- list(
     "img", "Ile wynoszą opłaty sądowe (Court fees)?", 400,
-    "https://github.com/bpaszko/WD-p2/blob/master/dwi_costs.jpg")
+    "https://raw.githubusercontent.com/bpaszko/WD-p2/master/dwi_costs.jpg")
 p2_bad <- list(
     "plot", "?", "odp",
     NULL)
