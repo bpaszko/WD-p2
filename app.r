@@ -4,8 +4,9 @@ library("ggplot2")
 library('scales')
 
 # -------------------------- Dodatkowe dane ---------------------------
-df4 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
-df5 <- data.frame(value=c(11, 42, 5, 42), Item=c('A', 'B', 'C', 'D'))
+df1 <- data.frame(name=c("Bonds", "Car Towing", "Lawyer Fees", "Probation Fees", "Court Fees", "Surcharge", "Interlock Devise", "Paperwork", "Fines"), val =c(20, 200, 5000, 1440, 400, 3000, 950, 390, 2000))
+df3 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
+df4 <- data.frame(value=c(11, 42, 5, 42), Item=c('A', 'B', 'C', 'D'))
 df7 <- data.frame(procent=c(43, 31, 4, 22), Item=c("zdecydowanie przeciw", "przeciw" ,"zdecydowanie za", "za"),
                   fill=as.factor(c(1,1,0,0)))  
 df7$Item <- factor(df7$Item, levels=unique(df7$Item))
@@ -25,7 +26,7 @@ df8_gr <- df8 %>% group_by(shark_name, typ) %>% summarise(n=sum(attacks))
 attack_sum <- df8_gr %>% group_by(shark_name) %>% summarise(sum(n))
 percs <-df8_gr %>% mutate(freq = n / sum(n)) %>% filter(typ=="Z skutkiem śmiertelnym") %>% select(freq)
         
-p5_g <- ggplot(df5, aes(x="", y=value, fill=Item)) + 
+p4_g <- ggplot(df4, aes(x="", y=value, fill=Item)) + 
     geom_bar(width = 1, stat='identity') +
     coord_polar('y', start=0) + 
     theme_minimal()+
@@ -56,8 +57,8 @@ p8_g <- ggplot(data=df8, aes(y=attacks, x=shark_name, fill=typ)) +
 # -------------------- Wykresy złe  --------------------
 # list("<typ>", "<pytanie>", <odpowiedź>, <wykres/url>)
 p1_bad <- list(
-    "plot", "?", "odp",
-    NULL)
+    "img", "Ile wynoszą opłaty sądowe (Court fees)?", 400,
+    "https://github.com/bpaszko/WD-p2/blob/master/dwi_costs.jpg")
 p2_bad <- list(
     "plot", "?", "odp",
     NULL)
@@ -83,17 +84,17 @@ p8_bad <- list(
 
 # -------------------- Wykresy poprawne --------------------
 p1_good <- list(
-    "plot", "?", "odp",
-    NULL)
+    "plot", "Ile wynoszą opłaty sądowe (Court fees)?", 400,
+    ggplot(df1, aes(x = reorder(name, -val), y = val)) + geom_bar(stat="identity") + theme_classic() + labs(x="", y="Koszt") + theme(axis.text.x = element_text(angle=45, hjust=1)) + geom_text(aes(label = val, y = val+100), size = 3))
 p2_good <- list(
     "plot", "?", "odp",
     NULL)
 p3_good <- list(
     "plot", "Ile wynosi CNT w 1998r", 30,
-    ggplot(df4, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
+    ggplot(df3, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
 p4_good <- list(
     "plot", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
-    p5_g)
+    p4_g)
 p5_good <- list(
     "plot", "?", "odp",
     NULL)
