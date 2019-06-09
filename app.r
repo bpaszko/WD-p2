@@ -56,20 +56,20 @@ p8_g <- ggplot(data=df8, aes(y=attacks, x=shark_name, fill=typ)) +
 # -------------------- Wykresy złe  --------------------
 # list("<typ>", "<pytanie>", <odpowiedź>, <wykres/url>)
 p1_bad <- list(
-    "plot", "Ile jest tu czerwonych kropek?", 3,
-    ggplot(iris, aes(x = Sepal.Length, y = Petal.Length)) + geom_point())
+    "plot", "?", "odp",
+    NULL)
 p2_bad <- list(
     "plot", "?", "odp",
-    ggplot(mtcars, aes(x = mpg, y = hp)) + geom_point())
+    NULL)
 p3_bad <- list(
-    "img", "?", "odp",
-    "https://matplotlib.org/3.1.0/_images/sphx_glr_simple_plot_0011.png")
-p4_bad <- list(
     "img", "Ile wynosi CNT w 1998r", 30,
     "https://support.sas.com/kb/24/addl/fusion_24875_1_g24875.gif")
-p5_bad <- list(
+p4_bad <- list(
     "img", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
     "https://upload.wikimedia.org/wikipedia/commons/8/88/Misleading_Pie_Chart.png")
+p5_bad <- list(
+    "img", "?", "odp",
+    NULL)
 p6_bad <- list(
     "plot", "?", "odp",
     NULL)
@@ -83,31 +83,28 @@ p8_bad <- list(
 
 # -------------------- Wykresy poprawne --------------------
 p1_good <- list(
-    "plot", "Ile jest różowych kropek?", 15,
-    ggplot(iris, aes(x = Sepal.Length, y = Petal.Length, color = Species)) + geom_point())
+    "plot", "?", "odp",
+    NULL)
 p2_good <- list(
     "plot", "?", "odp",
     NULL)
 p3_good <- list(
-    "plot", "?", "odp",
-    NULL)
-p4_good <- list(
     "plot", "Ile wynosi CNT w 1998r", 30,
     ggplot(df4, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
-p5_good <- list(
+p4_good <- list(
     "plot", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
     p5_g)
+p5_good <- list(
+    "plot", "?", "odp",
+    NULL)
 p6_good <- list(
     "plot", "?", "odp",
     NULL)
 p7_good <- list(
-    "plot", "?", "odp",
+    "plot", "Jaki procent Polaków jest przeciw lub zdecydowanie przeciw przyjęcia uchodźców z państw bliskiego wschodu?", "74",
     p7_g)
-#p8_good <- list(
- #   "img", "?", "odp",
-  #  "https://www.mathworks.com/help/examples/graphics/win64/CreateLinePlotExample_01.png")
 p8_good <- list(
-  "plot", "?", "Bull shark",
+  "plot", "Podaj który rekin ma największą śmiertelność", "Bull shark",
   p8_g)
 
 
@@ -126,7 +123,7 @@ ui <- fluidPage(
         
         # Panel boczny z polem do wpisywania odczytów
         sidebarPanel(
-            numericInput("input_n", "Odpowiedź", value = NULL),  # Pole do wprowadzenia wartości
+            textInput("input_n", "Odpowiedź", value = NULL),  # Pole do wprowadzenia wartości
             actionButton("save_input", "Zapisz"),             # Zapisanie wpisanej wartości
             actionButton("clear_last_input", "Cofnij"),
             h3("Podane odpowiedzi"),
@@ -135,7 +132,7 @@ ui <- fluidPage(
         ),
         
         mainPanel(
-            h1("Title"),
+            h1("Jak (nie)robić wykresów"),
             textOutput("plot_number"),
             textOutput("plot_question"),
             textOutput("score"),
@@ -262,8 +259,7 @@ server <- function(input, output, session) {
         user_answers <- isolate(reVals[["answers"]])
         plot_names <- paste("Wykres", 1:16)
         correct_answers <- sapply(plots, function(p) p[[3]])
-        
-        answers_correctness <- c("Źle... :(", "OK! :)")[1 + (user_answers == correct_answers)]
+        answers_correctness <- c("Źle... :(", "OK! :)")[1 + (sapply(user_answers, casefold) == casefold(correct_answers))]
         
         score <- as.data.frame(cbind(plot_names, correct_answers, user_answers, answers_correctness))
         colnames(score) <- c("", "Poprawny wynik", "Podana odpowiedź", "Zaliczone?")
