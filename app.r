@@ -5,6 +5,8 @@ library('scales')
 
 # -------------------------- Dodatkowe dane ---------------------------
 df1 <- data.frame(name=c("Bonds", "Car Towing", "Lawyer Fees", "Probation Fees", "Court Fees", "Surcharge", "Interlock Devise", "Paperwork", "Fines"), val =c(20, 200, 5000, 1440, 400, 3000, 950, 390, 2000))
+df2 <- data.frame(lang=c("Python", "Java", "C++", "Ruby","PHP", "C", "JavaScript", "C#", "Perl", "Clojure", "Scala", "Objective C", "TCL"), val =c(29.8, 25.8, 12.6, 9.6, 7.3, 4.9, 3.9, 2.5, 2, 0.8, 0.6, 0.1, 0.02), 
+                  type=c("interpretable", "compiled", "compiled", "interpretable", "interpretable", "compiled", "interpretable", "compiled", "interpretable", "other",  "compiled", "compiled", "interpretable"))
 df3 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
 df4 <- data.frame(value=c(11, 42, 5, 42), Item=c('A', 'B', 'C', 'D'))
 df7 <- data.frame(procent=c(43, 31, 4, 22), Item=c("zdecydowanie przeciw", "przeciw" ,"zdecydowanie za", "za"),
@@ -26,6 +28,23 @@ df8_gr <- df8 %>% group_by(shark_name, typ) %>% summarise(n=sum(attacks))
 attack_sum <- df8_gr %>% group_by(shark_name) %>% summarise(sum(n))
 percs <-df8_gr %>% mutate(freq = n / sum(n)) %>% filter(typ=="Z skutkiem śmiertelnym") %>% select(freq)
         
+p1_g <- ggplot(df1, aes(x = reorder(name, -val), y = val)) +
+    geom_bar(stat="identity") +
+    theme_classic() +
+    labs(x="", y="Koszt") +
+    theme(axis.text.x = element_text(angle=45, hjust=1), text = element_text(size = 16)) +
+    geom_text(aes(label = val, y = val+130), size = 5) +
+    scale_y_continuous(expand = c(0, 0))
+
+p2_g <- ggplot(df2, aes(x = lang, y = val, fill = type)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    theme_classic() +
+    labs(x="", y="Wykorzystanie języka [%]", color="Typ języka", title="Języki programowania wykorzystywane w 2013 r.") +
+    theme(axis.text.x = element_text(angle=45, hjust=1), text = element_text(size = 16)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 32)) +
+    scale_x_discrete(limits = df2 %>% arrange(type, -val) %>% pull(lang)) +
+    geom_text(aes(label = val, y = val+1), size = 5)
+
 p4_g <- ggplot(df4, aes(x="", y=value, fill=Item)) + 
     geom_bar(width = 1, stat='identity') +
     coord_polar('y', start=0) + 
@@ -60,8 +79,8 @@ p1_bad <- list(
     "img", "Ile wynoszą opłaty sądowe (Court fees)?", 400,
     "https://raw.githubusercontent.com/bpaszko/WD-p2/master/dwi_costs.jpg")
 p2_bad <- list(
-    "plot", "?", "odp",
-    NULL)
+    "img", "Które języki były częściej wykorzystywane w 2013 roku: interpretowalne czy kompilowalne?", "interpretowalne",
+    "https://raw.githubusercontent.com/bpaszko/WD-p2/master/coding_languages.jpg")
 p3_bad <- list(
     "img", "Ile wynosi CNT w 1998r", 30,
     "https://support.sas.com/kb/24/addl/fusion_24875_1_g24875.gif")
@@ -85,10 +104,10 @@ p8_bad <- list(
 # -------------------- Wykresy poprawne --------------------
 p1_good <- list(
     "plot", "Ile wynoszą opłaty sądowe (Court fees)?", 400,
-    ggplot(df1, aes(x = reorder(name, -val), y = val)) + geom_bar(stat="identity") + theme_classic() + labs(x="", y="Koszt") + theme(axis.text.x = element_text(angle=45, hjust=1)) + geom_text(aes(label = val, y = val+100), size = 3))
+    p1_g)
 p2_good <- list(
-    "plot", "?", "odp",
-    NULL)
+    "plot", "Które języki były częściej wykorzystywane w 2013 roku: interpretowalne czy kompilowalne?", "interpretowalne",
+    p2_g)
 p3_good <- list(
     "plot", "Ile wynosi CNT w 1998r", 30,
     ggplot(df3, aes(x=year, y=cnt)) + geom_bar(stat='identity'))
