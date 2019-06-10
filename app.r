@@ -2,6 +2,9 @@ library("shiny")
 library("dplyr")
 library("ggplot2")
 library('scales')
+library(RColorBrewer)
+library("waffle")
+library(shinythemes)
 
 # -------------------------- Dodatkowe dane ---------------------------
 df1 <- data.frame(name=c("Bonds", "Car Towing", "Lawyer Fees", "Probation Fees", "Court Fees", "Surcharge", "Interlock Devise", "Paperwork", "Fines"), val =c(20, 200, 5000, 1440, 400, 3000, 950, 390, 2000))
@@ -9,6 +12,9 @@ df2 <- data.frame(lang=c("Python", "Java", "C++", "Ruby","PHP", "C", "JavaScript
                   type=c("interpretable", "compiled", "compiled", "interpretable", "interpretable", "compiled", "interpretable", "compiled", "interpretable", "other",  "compiled", "compiled", "interpretable"))
 df3 <- data.frame(year=c(1997, 1998, 1999, 2000, 2001), cnt=c(25, 30, 20, 10, 60))
 df4 <- data.frame(value=c(11, 42, 5, 42), Item=c('A', 'B', 'C', 'D'))
+df5 <- data.frame(name=c("PiS", "KE", "Wiosna", "Konfederacja", "Kukiz", "Lewica Razem", "INNI"), val =c(42.4, 39.1, 6.6, 6.1, 4.1, 1.3, 0.4))
+df6 <- c("Radość"=16, "Zadowolenie"=32, "Obojętność"=20, "Zaskoczenie"=14,
+         "Rozczarowanie"=16, "Obawa"=16, "Niepewność"=10, "Zniechęcenie"=5, "Złość"=5, "Nie mam zdania"=1)
 df7 <- data.frame(procent=c(43, 31, 4, 22), Item=c("zdecydowanie przeciw", "przeciw" ,"zdecydowanie za", "za"),
                   fill=as.factor(c(1,1,0,0)))  
 df7$Item <- factor(df7$Item, levels=unique(df7$Item))
@@ -60,6 +66,21 @@ p4_g <- ggplot(df4, aes(x="", y=value, fill=Item)) +
     theme(axis.text.x=element_blank()) +
     geom_text(aes(y = 100 - cumsum(value) + 0.5*value, 
                   label = percent(value/100)), size=5)
+
+p5_g <- ggplot(df5, aes(x = reorder(name, -val), y = val)) +
+  geom_bar(stat="identity") +
+  theme_classic() +
+  labs(x="", y="Liczba punktów procentowych") +
+  theme(axis.text.x = element_text(angle=45, hjust=1), text = element_text(size = 16)) +
+  geom_text(aes(label = val, y = val/2), fontface = "bold", size = 5, colour="red")
+
+pallete = colorRampPalette(brewer.pal(11, "Set3"))(11)
+pallete[11] <- "#ffffff"
+p6_g <- waffle(df6, rows = 10, size = 1, 
+                colors = pallete, legend_pos = "bottom",
+               title = "Co czuli polacy po wyborze Andrzeja Dudy?",
+               xlab = "1 kwadrat = 1 ankietowana osoba\n(w każdej kolumnie jest 10 kwadratów)")
+
 p7_g <- ggplot(df7, aes(x=Item, y=procent,fill=fill)) + geom_bar(stat="identity") + 
   geom_text(aes(label=procent), hjust=-1) + coord_flip() + 
   scale_fill_manual(values=c("#005b96", "#851e3e")) + theme(legend.position = "none",axis.title.y=element_blank())
@@ -88,11 +109,11 @@ p4_bad <- list(
     "img", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
     "https://upload.wikimedia.org/wikipedia/commons/8/88/Misleading_Pie_Chart.png")
 p5_bad <- list(
-    "img", "?", "odp",
-    NULL)
+    "img", "Czy PiS uzyskał prawie dwukrotnie lepszy wynik od KE?", "nie",
+    "https://raw.githubusercontent.com/bpaszko/WD-p2/master/sondaz_europarlament.png")
 p6_bad <- list(
-    "plot", "?", "odp",
-    NULL)
+    "img", "Czy ludzi rozczarowanych jest więcej niż obawiających się?", "nie",
+    "https://raw.githubusercontent.com/bpaszko/WD-p2/master/andrzej_duda_sondaz.png")
 p7_bad <- list(
     "img", "Jaki procent Polaków jest przeciw lub zdecydowanie przeciw przyjęcia uchodźców z państw bliskiego wschodu?", "74",
     "https://github.com/bpaszko/WD-p2/raw/olaf_wykresy/tvp_sondaz.png")
@@ -115,11 +136,11 @@ p4_good <- list(
     "plot", "Porównaj B względem D (odp: '1': >, '2': <, '3': =)", "3",
     p4_g)
 p5_good <- list(
-    "plot", "?", "odp",
-    NULL)
+    "plot", "Czy PiS uzyskał prawie dwukrotnie lepszy wynik od KE?", "nie",
+    p5_g)
 p6_good <- list(
-    "plot", "?", "odp",
-    NULL)
+    "plot", "Czy ludzi rozczarowanych jest więcej niż obawiających się?", "nie",
+    p6_g)
 p7_good <- list(
     "plot", "Jaki procent Polaków jest przeciw lub zdecydowanie przeciw przyjęcia uchodźców z państw bliskiego wschodu?", "74",
     p7_g)
@@ -138,7 +159,7 @@ plots <- list(
 # -------------------- Zdefiniowanie układu strony -------------------- 
 input_fields <- c("input_n")  # nazwy pól które użytkownik aktualizuje 
 
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("united"), 
     sidebarLayout(
         
         # Panel boczny z polem do wpisywania odczytów
