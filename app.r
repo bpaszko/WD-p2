@@ -298,7 +298,7 @@ server <- function(input, output, session) {
         validate(need(getAnswersNumber() == 16, ""))  # Zapewnienie, że liczba odpowiedzi jest taka jak trzeba
         
         user_answers <- isolate(reVals[["answers"]])
-        plot_names <- paste("Wykres", 1:16)
+        plot_names <- c(paste("Wykres", 1:8), paste("Wykres", 1:8, "(poprawiony)"))
         correct_answers <- sapply(plots, function(p) p[[3]])
         answers_correctness <- c("Źle... :(", "OK! :)")[1 + (sapply(user_answers, casefold) == casefold(correct_answers))]
         
